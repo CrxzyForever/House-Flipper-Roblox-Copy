@@ -1,0 +1,150 @@
+{
+	"name": "HouseFlipperRoblox",
+	"tree": {
+		"$className": "DataModel",
+
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+
+			"Config": {
+				"$className": "Folder",
+				"GameConfig": {
+					"$path": "src/ReplicatedStorage/Config/GameConfig.lua"
+				},
+				"ToolConfig": {
+					"$path": "src/ReplicatedStorage/Config/ToolConfig.lua"
+				},
+				"FurnitureData": {
+					"$path": "src/ReplicatedStorage/Config/FurnitureData.lua"
+				},
+				"HouseData": {
+					"$path": "src/ReplicatedStorage/Config/HouseData.lua"
+				},
+				"JobData": {
+					"$path": "src/ReplicatedStorage/Config/JobData.lua"
+				},
+				"BuyerData": {
+					"$path": "src/ReplicatedStorage/Config/BuyerData.lua"
+				},
+				"PerkData": {
+					"$path": "src/ReplicatedStorage/Config/PerkData.lua"
+				},
+				"RoomData": {
+					"$path": "src/ReplicatedStorage/Config/RoomData.lua"
+				}
+			},
+
+			"Shared": {
+				"$className": "Folder",
+				"Enums": {
+					"$path": "src/ReplicatedStorage/Shared/Enums.lua"
+				},
+				"Utils": {
+					"$path": "src/ReplicatedStorage/Shared/Utils.lua"
+				}
+			}
+		},
+
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+
+			"HouseFlipperServer": {
+				"$path": "src/ServerScriptService/init.server.lua",
+
+				"Core": {
+					"$className": "Folder",
+					"GameManager": {
+						"$path": "src/ServerScriptService/Core/GameManager.lua"
+					},
+					"PlayerDataManager": {
+						"$path": "src/ServerScriptService/Core/PlayerDataManager.lua"
+					},
+					"RemoteManager": {
+						"$path": "src/ServerScriptService/Core/RemoteManager.lua"
+					}
+				},
+
+				"Systems": {
+					"$className": "Folder",
+					"JobSystem": {
+						"$path": "src/ServerScriptService/Systems/JobSystem.lua"
+					},
+					"EconomySystem": {
+						"$path": "src/ServerScriptService/Systems/EconomySystem.lua"
+					},
+					"HouseSystem": {
+						"$path": "src/ServerScriptService/Systems/HouseSystem.lua"
+					},
+					"RoomDetector": {
+						"$path": "src/ServerScriptService/Systems/RoomDetector.lua"
+					},
+					"BuyerSystem": {
+						"$path": "src/ServerScriptService/Systems/BuyerSystem.lua"
+					},
+					"FurnitureSystem": {
+						"$path": "src/ServerScriptService/Systems/FurnitureSystem.lua"
+					},
+					"PerkSystem": {
+						"$path": "src/ServerScriptService/Systems/PerkSystem.lua"
+					}
+				}
+			}
+		},
+
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+
+				"HouseFlipperClient": {
+					"$path": "src/StarterPlayerScripts/init.client.lua",
+
+					"Controllers": {
+						"$className": "Folder",
+						"ToolController": {
+							"$path": "src/StarterPlayerScripts/Controllers/ToolController.lua"
+						},
+						"PlacementController": {
+							"$path": "src/StarterPlayerScripts/Controllers/PlacementController.lua"
+						},
+						"CameraController": {
+							"$path": "src/StarterPlayerScripts/Controllers/CameraController.lua"
+						}
+					}
+				}
+			}
+		},
+
+		"StarterGui": {
+			"$className": "StarterGui",
+
+			"HouseFlipperUI": {
+				"$className": "ScreenGui",
+				"$properties": {
+					"ResetOnSpawn": false,
+					"ZIndexBehavior": "Sibling"
+				},
+
+				"HudUI": {
+					"$path": "src/StarterGui/HudUI.client.lua"
+				},
+				"TabletUI": {
+					"$path": "src/StarterGui/TabletUI.client.lua"
+				},
+				"ShopUI": {
+					"$path": "src/StarterGui/ShopUI.client.lua"
+				},
+				"EmailUI": {
+					"$path": "src/StarterGui/EmailUI.client.lua"
+				},
+				"PerkUI": {
+					"$path": "src/StarterGui/PerkUI.client.lua"
+				},
+				"BuyerUI": {
+					"$path": "src/StarterGui/BuyerUI.client.lua"
+				}
+			}
+		}
+	}
+}
