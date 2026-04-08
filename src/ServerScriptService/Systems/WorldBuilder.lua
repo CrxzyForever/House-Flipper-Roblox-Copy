@@ -62,15 +62,52 @@ local HOUSES_PER_ROW = 3
 local worldFolder = nil
 
 function WorldBuilder.init()
+	print("[WorldBuilder] Starting world generation...")
+
 	-- Create world container
 	worldFolder = Instance.new("Folder")
 	worldFolder.Name = "GameWorld"
 	worldFolder.Parent = workspace
 
-	-- Build the world
-	WorldBuilder._buildTerrain()
-	WorldBuilder._buildHub()
-	WorldBuilder._buildAllHouses()
+	-- Create a giant bright spawn platform so we know the script ran
+	local spawnPlatform = Instance.new("SpawnLocation")
+	spawnPlatform.Name = "MainSpawn"
+	spawnPlatform.Size = Vector3.new(20, 1, 20)
+	spawnPlatform.Position = Vector3.new(0, 0.5, -200)
+	spawnPlatform.Color = Color3.fromRGB(0, 170, 255)
+	spawnPlatform.Material = Enum.Material.Neon
+	spawnPlatform.Anchored = true
+	spawnPlatform.CanCollide = true
+	spawnPlatform.Parent = worldFolder
+	print("[WorldBuilder] Spawn platform created")
+
+	-- Build the world with error reporting
+	local ok1, err1 = pcall(function()
+		WorldBuilder._buildTerrain()
+	end)
+	if ok1 then
+		print("[WorldBuilder] Terrain built successfully")
+	else
+		warn("[WorldBuilder] Terrain FAILED: " .. tostring(err1))
+	end
+
+	local ok2, err2 = pcall(function()
+		WorldBuilder._buildHub()
+	end)
+	if ok2 then
+		print("[WorldBuilder] Hub built successfully")
+	else
+		warn("[WorldBuilder] Hub FAILED: " .. tostring(err2))
+	end
+
+	local ok3, err3 = pcall(function()
+		WorldBuilder._buildAllHouses()
+	end)
+	if ok3 then
+		print("[WorldBuilder] All houses built successfully")
+	else
+		warn("[WorldBuilder] Houses FAILED: " .. tostring(err3))
+	end
 
 	print("[WorldBuilder] World generation complete!")
 end
