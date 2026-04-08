@@ -7,43 +7,51 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local RemoteManager = require(script.Parent.RemoteManager)
-local PlayerDataManager = require(script.Parent.PlayerDataManager)
-
 local GameManager = {}
 
+-- These get set during init
+local RemoteManager = nil
+local PlayerDataManager = nil
+
 function GameManager.init()
-	-- Initialize core systems first
-	RemoteManager.init()
-	PlayerDataManager.init()
+	-- Initialize core systems with individual error handling
+	local Core = script.Parent
+	local Systems = Core.Parent.Systems
 
-	-- Initialize game systems
-	local Systems = script.Parent.Parent.Systems
-	local JobSystem = require(Systems.JobSystem)
-	local EconomySystem = require(Systems.EconomySystem)
-	local HouseSystem = require(Systems.HouseSystem)
-	local RoomDetector = require(Systems.RoomDetector)
-	local BuyerSystem = require(Systems.BuyerSystem)
-	local FurnitureSystem = require(Systems.FurnitureSystem)
-	local PerkSystem = require(Systems.PerkSystem)
+	local ok1, err1 = pcall(function()
+		RemoteManager = require(Core.RemoteManager)
+		RemoteManager.init()
+		print("[GameManager] RemoteManager initialized")
+	end)
+	if not ok1 then warn("[GameManager] RemoteManager FAILED: " .. tostring(err1)) end
 
-	JobSystem.init()
-	EconomySystem.init()
-	HouseSystem.init()
-	RoomDetector.init()
-	BuyerSystem.init()
-	FurnitureSystem.init()
-	PerkSystem.init()
+	local ok2, err2 = pcall(function()
+		PlayerDataManager = require(Core.PlayerDataManager)
+		PlayerDataManager.init()
+		print("[GameManager] PlayerDataManager initialized")
+	end)
+	if not ok2 then warn("[GameManager] PlayerDataManager FAILED: " .. tostring(err2)) end
 
-	-- Build the 3D world (houses, terrain, objects)
-	local WorldBuilder = require(Systems.WorldBuilder)
-	WorldBuilder.init()
+	-- Game systems (each wrapped so one failure doesn't stop the rest)
+	local systemNames = {"JobSystem", "EconomySystem", "HouseSystem", "RoomDetector", "BuyerSystem", "FurnitureSystem", "PerkSystem"}
+	for _, name in ipairs(systemNames) do
+		local ok, err = pcall(function()
+			local sys = require(Systems[name])
+			sys.init()
+			print("[GameManager] " .. name .. " initialized")
+		end)
+		if not ok then
+			warn("[GameManager] " .. name .. " FAILED: " .. tostring(err))
+		end
+	end
 
-	-- Setup remote function handlers
-	local getPlayerData = RemoteManager.getFunction("GetPlayerData")
-	if getPlayerData then
-		getPlayerData.OnServerInvoke = function(player)
-			return PlayerDataManager.getData(player)
+	-- Setup remote function handlers (only if both loaded)
+	if RemoteManager and PlayerDataManager then
+		local getPlayerData = RemoteManager.getFunction("GetPlayerData")
+		if getPlayerData then
+			getPlayerData.OnServerInvoke = function(player)
+				return PlayerDataManager.getData(player)
+			end
 		end
 	end
 
@@ -63,8 +71,20 @@ function GameManager.init()
 end
 
 function GameManager.onPlayerJoin(player)
+	if not PlayerDataManager or not RemoteManager then
+		warn("[GameManager] Cannot setup player - core systems not loaded")
+		return
+	end
+
 	-- Load player data
-	local data = PlayerDataManager.loadData(player)
+	local ok, data = pcall(function()
+		return PlayerDataManager.loadData(player)
+	end)
+
+	if not ok or not data then
+		warn("[GameManager] Failed to load data for " .. player.Name .. ": " .. tostring(data))
+		return
+	end
 
 	-- Send initial data to client
 	local moneyEvent = RemoteManager.getEvent("MoneyChanged")
@@ -75,9 +95,14 @@ function GameManager.onPlayerJoin(player)
 	-- Send available jobs
 	local jobListEvent = RemoteManager.getEvent("JobListUpdated")
 	if jobListEvent then
-		local JobData = require(ReplicatedStorage.Config.JobData)
-		local availableJobs = JobData.getAvailableJobs(data.completedJobs)
-		jobListEvent:FireClient(player, availableJobs)
+		local jobOk, _ = pcall(function()
+			local JobData = require(ReplicatedStorage.Config.JobData)
+			local availableJobs = JobData.getAvailableJobs(data.completedJobs)
+			jobListEvent:FireClient(player, availableJobs)
+		end)
+		if not jobOk then
+			warn("[GameManager] Failed to send job list to " .. player.Name)
+		end
 	end
 
 	-- Notify client that data is ready
