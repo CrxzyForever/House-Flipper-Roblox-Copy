@@ -35,6 +35,10 @@ function GameManager.init()
 	FurnitureSystem.init()
 	PerkSystem.init()
 
+	-- Build the 3D world (houses, terrain, objects)
+	local WorldBuilder = require(Systems.WorldBuilder)
+	WorldBuilder.init()
+
 	-- Setup remote function handlers
 	local getPlayerData = RemoteManager.getFunction("GetPlayerData")
 	if getPlayerData then
